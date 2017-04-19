@@ -8,7 +8,7 @@ arch=('i686' 'x86_64')
 url="http://www.rttr.org/"
 license=('MIT')
 groups=()
-depends=()
+depends=('gcc-libs')
 makedepends=('cmake' 'git' 'doxygen')
 optdepends=()
 provides=()
@@ -52,6 +52,7 @@ package() {
   
   mkdir -p $pkgdir/usr/share/licenses/$pkgname
   mkdir -p $pkgdir/usr/share/doc/$pkgname
+  mkdir -p $pkgdir/usr/lib/cmake
 
   mv $pkgdir/usr/LICENSE.txt $pkgdir/usr/share/licenses/$pkgname
   mv $pkgdir/usr/README.md $pkgdir/usr/share/doc/$pkgname
