@@ -1,0 +1,60 @@
+# Maintainer: Your Name <youremail@domain.com>
+pkgname=rttr-git
+_pkgname=rttr
+pkgver=0.9.5.r329.g74144d6
+pkgrel=1
+pkgdesc="A C++ reflection library"
+arch=('i686' 'x86_64')
+url="http://www.rttr.org/"
+license=('MIT')
+groups=()
+depends=()
+makedepends=('cmake' 'git')
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=(git+https://github.com/rttrorg/rttr.git
+	install_directories.patch)
+noextract=()
+sha256sums=('SKIP'
+	'SKIP')
+
+pkgver() {
+  cd "$_pkgname"
+  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  patch -d $srcdir/$_pkgname -p1 < install_directories.patch 
+}
+
+build() {
+  rm -rf "$_pkgname/build"
+  mkdir "$_pkgname/build"
+  cd "$_pkgname/build"
+
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_BENCHMARKS=OFF -DBUILD_UNIT_TESTS=OFF -DBUILD_DOCUMENTATION=ON -DBUILD_EXAMPLES=OFF
+
+  make
+  echo srcdir=$srcdir
+  sed -i s,"$srcdir/rttr/doc/md_pages/",,g $(find doc/rttr-* -name "*.html")
+}
+
+package() {
+  cd "$_pkgname/build"
+
+  make DESTDIR="$pkgdir/" install
+  
+  mkdir -p $pkgdir/usr/share/licenses/$pkgname
+  mkdir -p $pkgdir/usr/share/doc/$pkgname
+
+  mv $pkgdir/usr/LICENSE.txt $pkgdir/usr/share/licenses/$pkgname
+  mv $pkgdir/usr/README.md $pkgdir/usr/share/doc/$pkgname
+  
+  sed -i s,"$srcdir/rttr/doc/md_pages/",,g $(find $pkgdir/usr/share/doc/$pkgname -name "*.html")
+}
